@@ -35,7 +35,7 @@ try:
             alt=alt_encoded,                          # Holds your Humidity
             hdop=1.0, vdop=1.0,
             vn=0, ve=0, vd=0,                         # Speed vectors empty
-            speed_accuracy=1, horizontal_accuracy=1, vertical_accuracy=1,
+            speed_accuracy=1, horiz_accuracy=1, vertical_accuracy=1,
             satellites_visible=10                     # Forces link status active
         )
         
