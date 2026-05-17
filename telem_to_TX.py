@@ -1,32 +1,47 @@
 import time
 from pymavlink import mavutil
 
-# Connect to the Flight Controller UART
-master = mavutil.mavlink_connection('/dev/serial0', baud=115200)
+# 1. Establish the UART connection to the Flight Controller
+master = mavutil.mavlink_connection('/dev/ttyAMA0', baud=921600)
+
+print("Waiting for ArduPilot heartbeat...")
 master.wait_heartbeat()
-print("Connected to ArduPilot!")
+print("Connected!")
+
+# === THE PERMANENT STREAM FIX ===
+# Force ArduPilot's serial scheduler to broadcast data streams over the UART link
+# Param 1: Stream ID classification (MAV_DATA_STREAM_ALL = 0)
+# Param 2: Forced Transmission Rate in Hz (10 packets per second)
+# Param 3: Active State Trigger Flag (1 = ON / Start Stream)
+master.mav.request_data_stream_send(
+    master.target_system,
+    master.target_component,
+    mavutil.mavlink_connection.MAV_DATA_STREAM_ALL, 
+    10, 
+    1   
+)
+print("Hardware stream rate override injected successfully.")
 
 try:
     while True:
-        # The single sensor metric value you want to trace
-        my_metric = 42.5  
+        # Actively clear out incoming background messages to prevent buffer choke
+        while master.iorecv.read(1000):
+            pass 
 
-        # Scale by 10 to preserve 1 decimal place over integer transmission
-        # 42.5 becomes 425 (The Lua script divides this back by 10.0)
-        scaled_value = int(my_metric * 10)
+        current_time = time.time()
 
-        # Pad name out to exactly 10 bytes using null characters (\x00)
-        # ArduPilot maps this first sequence strictly to data_id 0x5000
-        name_bytes = b'CCompTmp\x00\x00'
+        # Stream your variable to the vacant lane 0x06
+        cc_temp = 42.5  
+        scaled_value = int(cc_temp * 10)
 
         master.mav.named_value_float_send(
-            time_boot_ms=int(time.time() * 1000) & 0xFFFFFFFF,
-            name=name_bytes,
+            time_boot_ms=int(current_time * 1000) & 0xFFFFFFFF,
+            name=b'CCompTmp\x00\x00',
             value=float(scaled_value)
         )
         
-        print(f"Injecting single metric: {my_metric} -> Scaled: {scaled_value}")
-        time.sleep(1) # Broadcast rate limit at 1Hz
+        print(f"Streaming data line -> {cc_temp}")
+        time.sleep(0.2) # Fast 5Hz processing cycle
 
 except KeyboardInterrupt:
-    print("Exiting...")
+    print("Exiting stream...")
