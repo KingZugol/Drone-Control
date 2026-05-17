@@ -2,7 +2,7 @@ import time
 from pymavlink import mavutil
 
 # 1. Establish the UART connection to the Flight Controller
-master = mavutil.mavlink_connection('/dev/ttyAMA0', baud=921600)
+master = mavutil.mavlink_connection('/dev/serial0', baud=115200)
 
 print("Waiting for ArduPilot heartbeat...")
 master.wait_heartbeat()
