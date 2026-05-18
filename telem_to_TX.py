@@ -1,47 +1,33 @@
 import time
 from pymavlink import mavutil
 
-# 1. Establish the UART connection to the Flight Controller
+# Establish the hardware connection to the Flight Controller UART
 master = mavutil.mavlink_connection('/dev/serial0', baud=115200)
-
-print("Waiting for ArduPilot heartbeat...")
 master.wait_heartbeat()
-print("Connected!")
-
-# === THE PERMANENT STREAM FIX ===
-# Force ArduPilot's serial scheduler to broadcast data streams over the UART link
-# Param 1: Stream ID classification (MAV_DATA_STREAM_ALL = 0)
-# Param 2: Forced Transmission Rate in Hz (10 packets per second)
-# Param 3: Active State Trigger Flag (1 = ON / Start Stream)
-master.mav.request_data_stream_send(
-    master.target_system,
-    master.target_component,
-    mavutil.mavlink_connection.MAV_DATA_STREAM_ALL, 
-    10, 
-    1   
-)
-print("Hardware stream rate override injected successfully.")
+print("Connected to ArduPilot!")
 
 try:
     while True:
-        # Actively clear out incoming background messages to prevent buffer choke
-        while master.iorecv.read(1000):
-            pass 
-
-        current_time = time.time()
-
-        # Stream your variable to the vacant lane 0x06
+        # The exact raw float you want to display on your RadioMaster Boxer
         cc_temp = 42.5  
-        scaled_value = int(cc_temp * 10)
+
+        # ArduPilot natively routes 'Tuning1' down the 0x5007 parameter slot
+        # The string must be exactly 10 bytes padded with null characters
+        name_bytes = b'Tuning1\x00\x00\x00'
 
         master.mav.named_value_float_send(
-            time_boot_ms=int(current_time * 1000) & 0xFFFFFFFF,
-            name=b'CCompTmp\x00\x00',
-            value=float(scaled_value)
+            time_boot_ms=int(time.time() * 1000) & 0xFFFFFFFF,
+            name=name_bytes,
+            value=float(cc_temp) # Broadcast your real float metric
         )
         
-        print(f"Streaming data line -> {cc_temp}")
-        time.sleep(0.2) # Fast 5Hz processing cycle
+        print(f"Injecting into ArduPilot Param Slot: {cc_temp}")
+        
+        # Ingest incoming background data bytes to prevent the Pi's UART buffer from choking
+        while master.iorecv.read(1000):
+            pass
+
+        time.sleep(1.0) # Maintain a stable 1Hz transmission rate
 
 except KeyboardInterrupt:
-    print("Exiting stream...")
+    print("Exiting...")
