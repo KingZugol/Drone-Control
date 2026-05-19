@@ -19,8 +19,11 @@ if response and response.command == mavutil.mavlink.MAV_CMD_SET_MESSAGE_INTERVAL
     print("Command accepted")
     try:
         while True:
-            channel_response = master.recv_match(type='RC_CHANNELS', blocking=False)
-            pwm_val = channel_response.chan8_raw
+            while True:
+                channel_response = master.recv_match(type='RC_CHANNELS', blocking=False)
+                if not channel_response:
+                    break
+                pwm_val = channel_response.chan8_raw
             print(f"Channel 8 PWM: {pwm_val}")
             time.sleep(0.5)
     except KeyboardInterrupt:
