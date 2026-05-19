@@ -15,6 +15,7 @@ message= master.mav.command_long_encode(
 )
 master.mav.send(message)
 response = master.recv_match(type='COMMAND_ACK', blocking=True)
+pwm_val = 0 
 if response and response.command == mavutil.mavlink.MAV_CMD_SET_MESSAGE_INTERVAL and response.result == mavutil.mavlink.MAV_RESULT_ACCEPTED:
     print("Command accepted")
     try:
