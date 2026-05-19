@@ -20,7 +20,7 @@ if response and response.command == mavutil.mavlink.MAV_CMD_SET_MESSAGE_INTERVAL
     try:
         while True:
             channel_response = master.recv_match(type='RC_CHANNELS', blocking=True)
-            print("Num channels: " + channel_response.chancount)
+            print(f"Num channels: {channel_response.chancount}")
             pwm_val = channel_response.chan8_raw
             print(f"Raw PWM recieved: {pwm_val}")
             time.sleep(0.5)
