@@ -7,6 +7,8 @@ print("Connected to Ardupilot!")
 try:
     while True:
         message = master.recv_match(type='RC_CHANNELS', blocking=True)
+        print("Num channels: " + message.chan_count)
+        print(f"All message attributes: {message.__dir__()}")
         pwm_val = message.chan8_raw
         print(f"Raw PWM recieved: {pwm_val}")
         time.sleep(0.5)
