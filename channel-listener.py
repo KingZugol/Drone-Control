@@ -6,9 +6,9 @@ print("Connected to Ardupilot!")
 
 try:
     while True:
-        message = master.recv_match(match='RC_CHANNELS', blocking=True)
+        message = master.recv_match(type='RC_CHANNELS', blocking=True)
         pwm_val = message.chan9_raw
-        print(f"Rwm PWM recieved: {rawm_pwm}")
+        print(f"Raw PWM recieved: {rawm_pwm}")
         time.sleep(0.5)
 except KeyboardInterrupt:
     print("Exiting...")
