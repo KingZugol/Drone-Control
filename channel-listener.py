@@ -14,24 +14,19 @@ message= master.mav.command_long_encode(
     0, 0, 0, 0, 0 # Empty params
 )
 master.mav.send(message)
-response = master.recv_match(type='RC_CHANNELS', blocking=True)
+response = master.recv_match(type='COMMAND_ACK', blocking=True)
 if response and response.command == mavutil.mavlink.MAV_CMD_SET_MESSAGE_INTERVAL and response.result == mavutil.mavlink.MAV_RESULT_ACCEPTED:
     print("Command accepted")
-    pwm_val = response.chan8_raw
-    print("Num channels: " + response.chan_count)
-    print(f"All message attributes: {response.__dir__()}")
-    print(f"Raw PWM recieved: {pwm_val}")
 else:
     print("Command failed")
-'''
+
 try:
     while True:
-        response = master.recv_match(type='RC_CHANNELS', blocking=True)
-        print("Num channels: " + response.chan_count)
-        print(f"All message attributes: {response.__dir__()}")
-        pwm_val = response.chan8_raw
+        channel_response = master.recv_match(type='RC_CHANNELS', blocking=True)
+        print("Num channels: " + channel_response.chan_count)
+        print(f"All message attributes: {channel_response.__dir__()}")
+        pwm_val = channel_response.chan8_raw
         print(f"Raw PWM recieved: {pwm_val}")
         time.sleep(0.5)
 except KeyboardInterrupt:
     print("Exiting...")
-'''
