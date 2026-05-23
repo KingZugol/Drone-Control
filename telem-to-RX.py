@@ -14,9 +14,14 @@ def send_crsf_data(serial_port, val):
     packet_body = bytes([type_id]) + payload_bytes
     crc_val = crc.crsf_crc8(packet_body)
 
-    packet = bytes([device_addr, len]) + packet_body + bytes([crc])
+    packet = bytes([device_addr, length]) + packet_body + bytes([crc_val])
 
     serial_port.write(packet)
+try:
+    while True:
 
-ser = serial.Serial('dev/serial0', baudrate=420000, timeout=1)
-send_crsf_data(ser, 55.5)
+        print("Sending Data to RX")
+        ser = serial.Serial('/dev/serial0', baudrate=420000, timeout=1)
+        send_crsf_data(ser, 55.5)
+except KeyboardInterrupt:
+    print("exiting")
