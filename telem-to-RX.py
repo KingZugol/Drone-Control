@@ -1,27 +1,30 @@
 import crc_calc as crc
 import serial
 import struct
+import time
 
 
-def send_crsf_data(serial_port, val):
-    device_addr = 0xC8
-    type_id = 0x51
-
-    payload_bytes = struct.pack('>f', val)
+def send_crsf_data(serial_port, payload,subtype_id,frame_type=0x80):
+    device_addr = 0xC8 #Flight Controller Adr. 
+    payload_bytes = struct.pack('>f', payload)
 
     length = len(payload_bytes) + 2
 
-    packet_body = bytes([type_id]) + payload_bytes
+    packet_body = bytes([frame_type]) + payload_bytes
     crc_val = crc.crsf_crc8(packet_body)
 
     packet = bytes([device_addr, length]) + packet_body + bytes([crc_val])
 
     serial_port.write(packet)
+
+
 try:
+    ser = serial.Serial('/dev/serial0', baudrate=420000, timeout=1)
     while True:
 
         print("Sending Data to RX")
-        ser = serial.Serial('/dev/serial0', baudrate=420000, timeout=1)
-        send_crsf_data(ser, 55.5)
+        
+        send_crsf_data(ser, 55.5, 0x01)
+        time.sleep(1)
 except KeyboardInterrupt:
     print("exiting")
