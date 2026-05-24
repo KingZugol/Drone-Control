@@ -5,19 +5,27 @@ import time
 
 def parse_crsf(port):
     if port.in_waiting >=10:
-        header = port.read(1)
-        if header == b'\xC8': #Adresse Flightcontroller
-            length = int.from_bytes(port.read(1), byteorder='big')
-            packet_body = port.read(length - 1)
-            crc_value = port.read(1)
+        while port.in_waiting > 0:
+            header = port.read(1)
+            if header == b'\xC8': #Adresse Flightcontroller
+                break
+            else:
+                return None, None
+        raw_len = port.read(1)
+        if not raw_len:
+            return None,None
+            
+        length = int.from_bytes(raw_len, byteorder='big')
+        packet_body = port.read(length - 1)
+        crc_value = port.read(1)
 
-            if crc_value == bytes([crc.crsf_crc8(packet_body)]):
-                if packet_body == 0x80:
-                    subtype_id = struct.unpack('>H', packet_body[1:3])
-                    payload = packet_body[3:7]
-                    payload_val = struct.unpack('>i', payload)
+        if crc_value == bytes([crc.crsf_crc8(packet_body)]):
+            if packet_body == 0x80:
+                subtype_id = struct.unpack('>H', packet_body[1:3])[0]
+                payload = packet_body[3:7]
+                payload_val = struct.unpack('>i', payload)[0]
                     
-                    return subtype_id, payload_val
+                return subtype_id, payload_val
                 
     return None, None
 
