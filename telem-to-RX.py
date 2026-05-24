@@ -9,7 +9,7 @@ def send_crsf_data(serial_port, payload,subtype_id,frame_type=0x80):
     payload_bytes = struct.pack('>f', payload)
     id_bytes = struct.pack('>H', subtype_id)
     full_payload = id_bytes + payload_bytes
-    length = len(payload_bytes) + 2
+    length = len(full_payload) + 2
 
     packet_body = bytes([frame_type]) + full_payload
     crc_val = crc.crsf_crc8(packet_body)
