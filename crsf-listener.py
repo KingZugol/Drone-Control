@@ -7,7 +7,7 @@ def parse_crsf(port):
     if port.in_waiting >=10:
         header = port.read(1)
         if header == b'\xC8': #Adresse Flightcontroller
-            length = int.from_bytes(port.read(port.read(1), byteorder='big'))
+            length = int.from_bytes(port.read(1), byteorder='big')
             packet_body = port.read(length - 1)
             crc_value = port.read(1)
 
@@ -23,9 +23,12 @@ def parse_crsf(port):
 
 try:
     port = serial.Serial('/dev/serial0', baudrate=420000, timeout=0.01)
-    sub_id, val = parse_crsf(port)
-    if sub_id == 0x0200:
-        print(f'EdgeTX Val: {val}')
+    while True:
+    
+        sub_id, val = parse_crsf(port)
+        if sub_id == 0x0200:
+            print(f'EdgeTX Val: {val}')
+        time.sleep(0.001)
 
 except KeyboardInterrupt:
     print('exiting')
