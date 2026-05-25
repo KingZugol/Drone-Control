@@ -21,7 +21,8 @@ def parse_crsf(port):
         crc_value = port.read(1)
 
         if crc_value == bytes([crc.crsf_crc8(packet_body)]):
-            if packet_body == 0x80:
+            frame_type = packet_body[0]
+            if frame_type == 0x50:
                 subtype_id = struct.unpack('>H', packet_body[1:3])[0]
                 payload = packet_body[3:7]
                 payload_val = struct.unpack('>i', payload)[0]
