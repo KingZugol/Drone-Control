@@ -3,8 +3,8 @@ import time
 #GPIO numbering mode
 GPIO.setmode(GPIO.BOARD)
 #Pin 18 als output
-GPIO.setup(18,GPIO.OUT)
-servo1=GPIO.PWM(18,50) #Pin 18 out, 50hz
+GPIO.setup(12,GPIO.OUT)
+servo1=GPIO.PWM(12,50) #Pin 18 out, 50hz
 
 servo1.start(0)
 print("Rotating servo 180 degrees")
