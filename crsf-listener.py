@@ -2,6 +2,14 @@ import crc_calc as crc
 import serial
 import struct
 import time
+import RPi.GPIO as GPIO
+
+#GPIO numbering mode
+GPIO.setmode(GPIO.BOARD)
+#Pin 18 als output
+GPIO.setup(18,GPIO.OUT)
+servo1=GPIO.PWM(18,50) #Pin 18 out, 50hz
+servo1.start(0)
 
 def parse_crsf(port):
     if port.in_waiting >=10:
@@ -38,10 +46,13 @@ try:
         sub_id, val = parse_crsf(port)
         if sub_id == 0x0200:
             print(f'EdgeTX Val: {val}')
+            servo1.ChangeDutyCycle(val)
         time.sleep(0.001)
 
 except KeyboardInterrupt:
     print('exiting')
 finally:
+    servo1.stop()
+    GPIO.cleanup()
     if 'port' in locals() and port.is_open:
         port.close()
