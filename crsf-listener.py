@@ -13,9 +13,9 @@ servo1.start(0)
 
 def set_angle(angle, servo):
     duty_cycle = (angle/180) * 10 + 2.5
-    servo.changeDutyCycle(duty_cycle)
+    servo.ChangeDutyCycle(duty_cycle)
     time.sleep(0.3)
-    servo.changeDutyCycle(0)
+    servo.ChangeDutyCycle(0)
 
 
 def parse_crsf(port):
