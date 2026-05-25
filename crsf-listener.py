@@ -15,7 +15,7 @@ def parse_crsf(port):
     if port.in_waiting >=10:
         while port.in_waiting > 0:
             header = port.read(1)
-            print(f"header recieved: {header}")
+            #print(f"header recieved: {header}")
             if header == b'\xC8': #Adresse Flightcontroller
                 break
             else:
