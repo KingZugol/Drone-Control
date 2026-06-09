@@ -14,7 +14,7 @@ servo1.start(0)
 def set_angle(angle, servo):
     duty_cycle = (angle/180) * 10 + 2.5
     servo.ChangeDutyCycle(duty_cycle)
-    time.sleep(1)
+    print(f"Dutycycle: {duty_cycle}")
 
 
 
@@ -54,6 +54,8 @@ try:
         if sub_id == 0x0200:
             print(f'EdgeTX Val: {val}')
             set_angle(val, servo1)
+            time.sleep(1)
+            port.reset_input_buffer()
         time.sleep(0.001)
 
 except KeyboardInterrupt:
